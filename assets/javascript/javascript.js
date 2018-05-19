@@ -1,31 +1,80 @@
 $(document).ready(function () {
-    var searchTerm = "Tesla";
-    var numberRecords = "5";
-    var startYear;
-    var endYear;
+    var startYear = "";
+    var endYear = "";
+    console.log(startYear);
 
     var APIkey = "8066e48ee7f14bd4a877966c12f2b41d";
 
-    var url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
-    console.log($("#test"));
-    url += '?' + $.param({
-        'api-key': APIkey,
-        'q': searchTerm
-    });
 
-    $.ajax({
-        url: url,
-        method: "GET"
-    }).then(function (response) {
-        var results=response.response.docs;
-        console.log(results);
-        for (var i=0;i<results.length;i++){
-            console.log(results[i].headline.main);
-            //console.log(results[i].byline.original);
-            console.log(results[i].pub_date);
-            console.log(results[i].web_url);
-          
+    $(".search").click(function () {
+
+
+        var searchTerm = $("#term").val();
+        console.log(searchTerm);
+
+        var numberRecords = $("#numRec").val();
+        console.log(numberRecords);
+
+        startYear = $("#startY").val();
+        endYear = $("#endY").val();
+
+
+        var url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
+        url += '?' + $.param({
+            'api-key': APIkey,
+            'q': searchTerm,
+        });
+
+        if (startYear != "") {
+            startYear = $("#startY").val() + "0101";
+            url += "?" + $.param({
+                "begin_date": startYear
+            });
+
         }
+        if (endYear != "") {
+            endYear = $("#endY").val() + "1231";
+            url += "?" + $.param({
+                "end_date": endYear
+            })
+
+        }
+
+        $.ajax({
+            url: url,
+            method: "GET"
+        }).then(function (response) {
+            var results = response.response.docs;
+            console.log(results);
+            for (var i = 0; i < numberRecords; i++) {
+                newsIndex=i+1;
+                var newsDiv=$("<div>");
+                newsDiv.addClass("newsSection");
+                var headline=$("<p>");
+                headline.text(newsIndex + " " + results[i].headline.main);
+                newsDiv.append(headline);
+                var link=$("<a>")
+                link.attr("href",results[i].web_url);
+                link.text(results[i].web_url);
+                newsDiv.append(link);
+                $(".noticiasAqui").append(newsDiv);
+                console.log(results[i].headline.main);
+                //console.log(results[i].byline.original);
+                console.log(results[i].pub_date);
+                console.log(results[i].web_url);
+
+            }
+        });
+
     });
 
+
+    $(".clear").on("click",function () {
+        $("#term").val("");
+        $("#numRec").val("");
+        $("#startY").val("");
+        $("#endY").val("");
+        $(".noticiasAqui").empty();
+    })
 });
+
